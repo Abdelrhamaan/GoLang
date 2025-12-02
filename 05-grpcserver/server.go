@@ -12,12 +12,14 @@ import (
 
 	// gRPC library for creating server and handling RPCs.
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // server implements the Calculate service defined in the protobuf.
 // It embeds the unimplemented server to ensure forward compatibility.
 type server struct {
 	calculatorpb.UnimplementedCalculateServer
+	calculatorpb.UnimplementedGreeterServer
 }
 
 // Add implements the Add RPC method.
@@ -28,7 +30,18 @@ func (s *server) Add(ctx context.Context, req *calculatorpb.AddRequest) (*calcul
 	}, nil
 }
 
+func (s *server) Greet(ctx context.Context, greet_req *calculatorpb.GreeterRequest) (*calculatorpb.GreeterResponse, error) {
+	return &calculatorpb.GreeterResponse{
+		Message: "Hello My Friend: " + greet_req.Name,
+	}, nil
+}
+
 func main() {
+
+	// lets passing cred and cert
+	const CERT = "cert.pem"
+	const KEY = "cred.pem"
+
 	// Define the port the server will listen on.
 	const PORT = ":50051"
 	// Create a TCP listener on the specified port.
@@ -38,11 +51,18 @@ func main() {
 		log.Fatal("Cannot listen: ", err)
 	}
 
+	creds, err := credentials.NewServerTLSFromFile(CERT, KEY)
+
+	if err != nil {
+		log.Println("Cannot read creds: ", err)
+	}
+
 	// Create a new gRPC server instance.
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 
 	// Register the Calculate service implementation with the gRPC server.
 	calculatorpb.RegisterCalculateServer(grpcServer, &server{})
+	calculatorpb.RegisterGreeterServer(grpcServer, &server{})
 
 	// Log that the server has started.
 	log.Println("Server is started on port: ", PORT)

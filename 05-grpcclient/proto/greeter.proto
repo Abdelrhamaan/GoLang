@@ -1,0 +1,13 @@
+syntax = "proto3";
+package calculator;
+
+option go_package = "/gen; calculatorpb";
+
+
+message GreeterRequest {
+    string name = 1; 
+}
+
+message GreeterResponse {
+    string message = 1;
+}
