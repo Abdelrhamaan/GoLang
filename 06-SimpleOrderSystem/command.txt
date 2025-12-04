@@ -1,0 +1,1 @@
+protoc --go_out=./server/gen --go-grpc_out=./server/gen proto/order.proto
