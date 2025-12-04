@@ -60,6 +60,21 @@ func (s *server) GetOrder(ctx context.Context, req *orderpb.GetOrderRequest) (*o
 
 }
 
+func (s *server) DeleteOrder(ctx context.Context, req *orderpb.DeleteOrderRequest) (*orderpb.DeleteOrderResponse, error) {
+	order_id := req.OrderId
+	if _, exists := s.orders[order_id]; exists {
+		log.Println("Before deleting", s.orders)
+		order := s.orders[order_id]
+		delete(s.orders, order_id)
+		log.Println("After deleting", s.orders)
+		return &orderpb.DeleteOrderResponse{
+			Order:   order,
+			Message: "Order deleted successfully",
+		}, nil
+	}
+	return nil, fmt.Errorf("order not found")
+}
+
 func main() {
 
 	const PORT = ":50053"
