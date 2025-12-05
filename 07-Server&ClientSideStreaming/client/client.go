@@ -9,10 +9,15 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/encoding/gzip"
 )
 
 func main() {
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// compressing data with gzip
+	// this will compressing all requests
+	// also we can make compressing for specific requests
+	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -25,7 +30,8 @@ func main() {
 		N: 10,
 	}
 
-	stream, err := client.FabonacciStreams(ctx, req)
+	// stream, err := client.FabonacciStreams(ctx, req)
+	stream, err := client.FabonacciStreams(ctx, req, grpc.UseCompressor(gzip.Name))
 
 	if err != nil {
 		log.Fatal(err)

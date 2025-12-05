@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	// under score to prevent removing it untill if you not using it
+	_ "google.golang.org/grpc/encoding"
 )
 
 type server struct {
